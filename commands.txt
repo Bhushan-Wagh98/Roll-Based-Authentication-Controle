@@ -1,0 +1,7 @@
+npm init -y
+npm i express ejs dotenv morgan mongoose http-errors
+npm i --save-dev nodemon
+npm i bcrypt
+npm i express-session connect-flash
+npm i express-validator
+npm i passport passport-local
