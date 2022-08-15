@@ -6,6 +6,8 @@ require("dotenv").config();
 const session = require("express-session");
 const connectFlash = require("connect-flash");
 const passport = require("passport");
+const connectMongo = require("connect-mongo");
+const connectEnsureLogin = require("connect-ensure-login");
 
 const app = express();
 app.use(morgan("dev"));
@@ -23,12 +25,20 @@ app.use(
       // secure:true,
       httpOnly: true,
     },
+    store: connectMongo.create({
+      mongoUrl: process.env.MONGO_URI,
+    }),
   })
 );
 
 app.use(passport.initialize());
 app.use(passport.session());
 require("./utils/passport.auth");
+
+app.use((req, res, next) => {
+  res.locals.user = req.user;
+  next();
+});
 
 app.use(connectFlash());
 app.use((req, res, next) => {
@@ -38,7 +48,11 @@ app.use((req, res, next) => {
 
 app.use("/", require("./routes/index.route"));
 app.use("/auth", require("./routes/auth.route"));
-app.use("/user", require("./routes/user.route"));
+app.use(
+  "/user",
+  connectEnsureLogin.ensureLoggedIn({ redirectTo: "/auth/login" }),
+  require("./routes/user.route")
+);
 
 app.use((req, res, next) => {
   next(createHttpError.NotFound());
@@ -66,3 +80,11 @@ mongoose
     app.listen(PORT, () => console.log(`server started on port ${PORT}`));
   })
   .catch((err) => console.log(err.message));
+
+// function ensureAuthenticated(req, res, next) {
+//   if (req.isAuthenticated()) {
+//     next();
+//   } else {
+//     res.redirect("/auth/login");
+//   }
+// }

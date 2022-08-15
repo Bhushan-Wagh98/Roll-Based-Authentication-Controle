@@ -5,3 +5,5 @@ npm i bcrypt
 npm i express-session connect-flash
 npm i express-validator
 npm i passport passport-local
+npm i connect-mongo
+npm i connect-ensure-login
