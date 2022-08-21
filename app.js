@@ -23,8 +23,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      // secure:true,
-      httpOnly: true,
+      secure: true,
     },
     store: connectMongo.create({
       mongoUrl: process.env.MONGO_URI,
