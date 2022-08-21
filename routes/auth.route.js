@@ -1,12 +1,13 @@
 const router = require("express").Router();
 const User = require("../models/user.model");
-const { body, validationResult } = require("express-validator");
+const { validationResult } = require("express-validator");
 const passport = require("passport");
-const connectEnsure = require("connect-ensure-login");
+const { ensureLoggedOut, ensureLoggedIn } = require("connect-ensure-login");
+const { registerValidator } = require("../utils/validator");
 
 router.get(
   "/login",
-  connectEnsure.ensureLoggedOut({ redirectTo: "/" }),
+  ensureLoggedOut({ redirectTo: "/" }),
   async (req, res, next) => {
     res.render("login");
   }
@@ -14,7 +15,7 @@ router.get(
 
 router.get(
   "/register",
-  connectEnsure.ensureLoggedOut({ redirectTo: "/" }),
+  ensureLoggedOut({ redirectTo: "/" }),
   async (req, res, next) => {
     res.render("register");
   }
@@ -22,7 +23,7 @@ router.get(
 
 router.post(
   "/login",
-  connectEnsure.ensureLoggedOut({ redirectTo: "/" }),
+  ensureLoggedOut({ redirectTo: "/" }),
   passport.authenticate("local", {
     // successRedirect: "/",
     successReturnToOrRedirect: "/",
@@ -33,25 +34,8 @@ router.post(
 
 router.post(
   "/register",
-  connectEnsure.ensureLoggedOut({ redirectTo: "/" }),
-  [
-    body("email")
-      .trim()
-      .isEmail()
-      .withMessage("Email must be a valid email!")
-      .normalizeEmail()
-      .toLowerCase(),
-    body("password")
-      .trim()
-      .isLength(8)
-      .withMessage("Password must require minimum 8 character!"),
-    body("password2").custom((value, { req }) => {
-      if (value !== req.body.password) {
-        throw new Error("Password do not match!");
-      }
-      return true;
-    }),
-  ],
+  ensureLoggedOut({ redirectTo: "/" }),
+  registerValidator,
   async (req, res, next) => {
     try {
       const errors = validationResult(req);
@@ -85,7 +69,7 @@ router.post(
 
 router.get(
   "/logout",
-  connectEnsure.ensureLoggedIn({ redirectTo: "/" }),
+  ensureLoggedIn({ redirectTo: "/" }),
   async (req, res, next) => {
     req.logout(function (err) {
       if (err) {
@@ -97,19 +81,3 @@ router.get(
 );
 
 module.exports = router;
-
-// function ensureAuthenticated(req, res, next) {
-//   if (req.isAuthenticated()) {
-//     next();
-//   } else {
-//     res.redirect("/auth/login");
-//   }
-// }
-
-// function ensureNOTAuthenticated(req, res, next) {
-//   if (req.isAuthenticated()) {
-//     res.redirect("back");
-//   } else {
-//     next();
-//   }
-// }

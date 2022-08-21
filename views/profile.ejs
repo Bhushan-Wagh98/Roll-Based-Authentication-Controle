@@ -16,7 +16,22 @@
   </div>
   <div>
     <p class="title">User Object</p>
-    <p class="subtitle"><%= person %></p>
+    <p class="subtitle">
+      <code>{</code>
+      <div class="code">
+        <code>
+          <span>_id:</span> new<span style="color: red;"> ObjectId(</span>"<%= person.id %>"<span style="color: red;">)</span>,</code>
+        <code><span>email:</span> '<%= person.email %>',</code>
+        <code>
+          <span>password:</span> '<%= person.password %>',</code>
+        <code>
+          <span>role:</span> '<%= person.role %>',</code>
+        <code class="num">
+          <span>__v:</span> <%= person.__v %></code>
+      </div>
+      <code>}</code>
+      <!-- <%= person%> -->
+    </p>
   </div>
 </div>
 

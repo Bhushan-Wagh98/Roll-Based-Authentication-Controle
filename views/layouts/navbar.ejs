@@ -5,8 +5,9 @@
     <% if (user) { %>
     <li><a href="/user/profile">Profile</a></li>
     <li><a href="/auth/logout">Logout</a></li>
+    <% if (user.role==="ADMIN") { %>
     <li><a href="/admin/users">Manage Users</a></li>
-    <% }else{ %>
+    <% } %> <% }else{ %>
     <li><a href="/auth/register">Register</a></li>
     <li><a href="/auth/login">Login</a></li>
     <%}%>

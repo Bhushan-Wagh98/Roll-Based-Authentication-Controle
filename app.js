@@ -7,7 +7,8 @@ const session = require("express-session");
 const connectFlash = require("connect-flash");
 const passport = require("passport");
 const connectMongo = require("connect-mongo");
-const connectEnsureLogin = require("connect-ensure-login");
+const { ensureLoggedIn } = require("connect-ensure-login");
+const { roles } = require("./utils/constants");
 
 const app = express();
 app.use(morgan("dev"));
@@ -50,8 +51,14 @@ app.use("/", require("./routes/index.route"));
 app.use("/auth", require("./routes/auth.route"));
 app.use(
   "/user",
-  connectEnsureLogin.ensureLoggedIn({ redirectTo: "/auth/login" }),
+  ensureLoggedIn({ redirectTo: "/auth/login" }),
   require("./routes/user.route")
+);
+app.use(
+  "/admin",
+  ensureLoggedIn({ redirectTo: "/auth/login" }),
+  ensureAdmin,
+  require("./routes/admin.route")
 );
 
 app.use((req, res, next) => {
@@ -62,7 +69,6 @@ app.use((error, req, res, next) => {
   error.status = error.status || 500;
   res.status(error.status);
   res.render("error_40x", { error });
-  //   res.send(error);
 });
 
 const PORT = process.env.PORT || 3000;
@@ -70,10 +76,6 @@ const PORT = process.env.PORT || 3000;
 mongoose
   .connect(process.env.MONGO_URI, {
     dbName: process.env.DB_NAME,
-    // useNewUrlParser: true,
-    // useUnifiedTopology: true,
-    // useCreateIndex: true,
-    // useFindAndModify: false,
   })
   .then(() => {
     console.log("Database connected...");
@@ -81,10 +83,20 @@ mongoose
   })
   .catch((err) => console.log(err.message));
 
-// function ensureAuthenticated(req, res, next) {
-//   if (req.isAuthenticated()) {
-//     next();
-//   } else {
-//     res.redirect("/auth/login");
-//   }
-// }
+function ensureAdmin(req, res, next) {
+  if (req.user.role === roles.admin) {
+    next();
+  } else {
+    req.flash("warning", "You are not authorized to see this!");
+    res.redirect("/");
+  }
+}
+
+function ensureModerator(req, res, next) {
+  if (req.user.role === roles.moderator) {
+    next();
+  } else {
+    req.flash("warning", "You are not authorized to see this!");
+    res.redirect("/");
+  }
+}

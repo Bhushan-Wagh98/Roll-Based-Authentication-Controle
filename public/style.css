@@ -11,7 +11,7 @@ body {
   background-color: #fff;
   font-family: "Space Mono", monospace;
   font-family: "Open Sans", sans-serif;
-
+  /* font-family: "Poppins", sans-serif; */
   max-width: 760px;
   margin: auto;
   font-size: 1rem;
@@ -252,4 +252,18 @@ ul.messages * {
 h1,
 h3 {
   text-align: center;
+}
+.code {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+}
+.code > code > span {
+  color: brown;
+}
+.code > code {
+  color: blue;
+}
+.num {
+  color: green !important;
 }
